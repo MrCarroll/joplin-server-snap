@@ -1,0 +1,57 @@
+#!/bin/bash
+
+DEFAULT_JOPLIN_PORT="22300"
+DEFAULT_PROXY_PORT="80"
+DEFAULT_BASE_URL="http://localhost"
+DEFAULT_PROXY_ENABLED="1"
+
+joplin_port()
+{
+	port="$(snapctl get joplin-port)"
+	if [[ -z "$port" ]]; then
+		snapctl set joplin-port="${DEFAULT_JOPLIN_PORT:?}"
+	fi
+}
+
+proxy_port()
+{
+	port="$(snapctl get proxy-port)"
+        if [[ -z "$port" ]]; then
+                snapctl set proxy-port="${DEFAULT_PROXY_PORT:?}"
+        fi
+}
+
+base_url()
+{
+	url="$(snapctl get base-url)"
+	if [[ -z "$url" ]]; then
+		snapctl set base-url="${DEFAULT_BASE_URL:?}"
+	fi
+}
+
+proxy_enabled()
+{
+	enabled="$(snapctl get proxy-enabled)"
+	if [[ -z "$enabled" ]]; then
+		snapctl set proxy-enabled="${DEFAULT_PROXY_ENABLED:?}"
+	fi
+}
+
+fix_permissions()
+{
+	touch ${SNAP_DATA}/db.sqlite
+	chown snap_daemon ${SNAP_DATA}/db.sqlite
+	
+	mkdir -p ${SNAP_DATA}/logs
+	chown -R snap_daemon ${SNAP_DATA}/logs
+	
+	mkdir -p ${SNAP_DATA}/temp
+	chown -R snap_daemon ${SNAP_DATA}/temp
+}
+
+joplin_port
+proxy_port
+base_url
+proxy_enabled
+fix_permissions
+snapctl restart joplin-server

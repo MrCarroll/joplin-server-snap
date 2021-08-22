@@ -1,0 +1,23 @@
+--- joplin/packages/server/src/config.ts	2021-08-20 18:24:50.622294529 +0100
++++ ./config.ts	2021-08-20 18:26:16.370312716 +0100
+@@ -5,6 +5,9 @@
+ import { loadStripeConfig, StripePublicConfig } from '@joplin/lib/utils/joplinCloud';
+ 
+ export interface EnvVariables {
++
++	SNAP_DATA?: string;
++
+ 	APP_NAME?: string;
+ 
+ 	APP_BASE_URL?: string;
+@@ -154,8 +157,8 @@
+ 		rootDir: rootDir,
+ 		viewDir: viewDir,
+ 		layoutDir: `${viewDir}/layouts`,
+-		tempDir: `${rootDir}/temp`,
+-		logDir: `${rootDir}/logs`,
++		tempDir: `${env.SNAP_DATA}/temp`,
++		logDir: `${env.SNAP_DATA}/logs`,
+ 		database: databaseConfigFromEnv(runningInDocker_, env),
+ 		mailer: mailerConfigFromEnv(env),
+ 		stripe: stripeConfigFromEnv(stripePublicConfig, env),

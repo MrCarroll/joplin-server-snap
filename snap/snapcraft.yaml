@@ -1,0 +1,55 @@
+name: joplin-server
+base: core20
+summary: Self-host your synchronised Joplin notes privately.
+description: |
+  Joplin Server provides an optimised Joplin sync platform that can be self hosted.
+
+  Joplin clients that use Joplin Server will also be capable of publishing their notes via Joplin Server.
+grade: stable
+confinement: strict
+adopt-info: joplin-server
+license: Proprietary
+
+package-repositories:
+  - type: apt
+    url: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+    components: [main]
+    suites: [any-version]
+    key-id: 65760C51EDEA2017CEA2CA15155B6D79CA56EA34
+
+parts:
+  joplin-server:
+    plugin: joplin
+    source: https://github.com/laurent22/joplin.git
+    stage-snaps:
+      - node/16/stable
+    stage-packages: 
+      - caddy
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe --tags)
+  
+  wrappers:
+    plugin: dump
+    source: ./wrappers
+    source-type: local 
+
+apps:
+  joplin-server:
+    command: joplin-wrapper.sh
+    daemon: simple
+    restart-condition: on-abnormal
+    restart-delay: 10s
+    plugs:
+      - network
+      - network-bind
+
+  caddy:
+    command: caddy-wrapper.sh
+    daemon: simple
+    restart-condition: on-abnormal
+    restart-delay: 10s
+    after: [joplin-server]
+    plugs:
+      - network
+      - network-bind
