@@ -26,6 +26,17 @@ class PluginImpl(PluginV2):
 			SUDO_USER="root",
 			npm_config_prefer_offline="true"
 		)
+		
+	@staticmethod
+	def _launchpad_proxy_workaround() -> List[str]:
+		return [
+			# ${var-} to work around potential unbound variable.
+			'if [[ -n "${http_proxy-}" ]]; then',
+				'export ELECTRON_GET_USE_PROXY=1',
+				'export GLOBAL_AGENT_HTTP_PROXY="${http_proxy}"',
+				'export GLOBAL_AGENT_HTTPS_PROXY="${http_proxy}"',
+			'fi'
+		]
 
 	@staticmethod
 	def _apply_patches() -> List[str]:
@@ -43,4 +54,4 @@ class PluginImpl(PluginV2):
 		]
 
 	def get_build_commands(self) -> List[str]:
-		return self._apply_patches() +  self._build_commands()
+		return self._launchpad_proxy_workaround() + self._apply_patches() +  self._build_commands()
